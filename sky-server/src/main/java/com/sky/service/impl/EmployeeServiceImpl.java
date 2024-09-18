@@ -1,17 +1,28 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
+import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -55,6 +66,73 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //3、返回实体对象
         return employee;
+    }
+    /**
+     * 新增员工
+     */
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+        Employee employee=new Employee();
+
+        //复制属性
+        BeanUtils.copyProperties(employeeDTO,employee);
+
+        //employee.setCreateTime(LocalDateTime.now());
+
+        //employee.setUpdateTime(LocalDateTime.now());
+        //状态常量类
+        employee.setStatus(StatusConstant.ENABLE);
+
+        //employee.setCreateUser(BaseContext.getCurrentId());
+        //employee.setUpdateUser(BaseContext.getCurrentId());
+        //设计默认密码并加密，密码常量类
+        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+
+        employeeMapper.insert(employee);
+    }
+    /**
+     *分页查询查询员工
+     * */
+    @Override
+    public PageResult selectpage(EmployeePageQueryDTO employeePageQueryDTO) {
+        PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());
+
+        Page<Employee> page=employeeMapper.selectpage(employeePageQueryDTO);
+
+        PageResult pageResult=new PageResult(page.getTotal(),page.getResult());
+        return pageResult;
+    }
+
+    @Override
+    public void statusupdate(Integer status, Long id) {
+        Employee employee = Employee.builder()
+                .status(status)
+                .id(id)
+                .build();
+        employeeMapper.update(employee);
+    }
+
+    /**
+     *根据id查询员工
+     * */
+    @Override
+    public Employee selectById(Integer id) {
+        Employee employee=employeeMapper.selectById(id);
+        return employee;
+    }
+
+    /**
+     *修改员工信息
+     * */
+    @Override
+    public void updateimfor(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO,employee);
+        //已通过aop经反射赋值
+//        employee.setUpdateUser(BaseContext.getCurrentId());
+//
+//        employee.setUpdateTime(LocalDateTime.now());
+        employeeMapper.update(employee);
     }
 
 }

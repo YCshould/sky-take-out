@@ -12,6 +12,10 @@ spring:
       url: jdbc:mysql://localhost:3306/sky_take_out?serverTimezone=Asia/Shanghai
       username: root
       password: 20010518
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
 
 mybatis:
   #mapper配置文件
@@ -34,6 +38,11 @@ sky:
     # 设置jwt签名加密时使用的秘钥
     admin-secret-key: itcast
     # 设置jwt过期时间
-    admin-ttl: 7200000
+    admin-ttl: 7200000000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
+  alioss:
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    accessKeyId: LTAI5tNW8UQyYmDtmxtypw6N
+    accessKeySecret: twUzvlhxA7FXjUGlhVQfx9VYHH4Yxo
+    bucketName: sky-take-out-wu18
